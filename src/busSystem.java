@@ -8,10 +8,14 @@ public class busSystem {
     static ArrayList<Integer> stops;
     static EdgeWeightedDigraph graph;
     static TST<String> tst; // empty ternary search tree
+    static DirectedEdge edge; // edges to be added to graph for Dijkstra
+    static ArrayList<String> all; // arrayList of all the information
 
 
     public static void main(String[] args) {
-
+        readStops("stops.txt");
+        readTransfers("transfers.txt");
+        readStopTimes("stop_times.txt");
     }
 
     //reads in the stops file and gets required data
@@ -95,6 +99,100 @@ public class busSystem {
             result.append(string).append(x);
         }
         return result.toString();
+    }
+
+
+    public static void readTransfers(String file) {
+        try {
+            if (file == null) {
+                return;
+            }
+            File myFile = new File(file);
+            Scanner readFile = new Scanner(myFile);
+            readFile.nextLine(); // ignores the first line in the file
+            while (readFile.hasNextLine()) {
+                String[] line = readFile.nextLine().split(","); // separate the lines by the ","
+                if (Objects.equals(line[2], "0")) {
+                    int matrixValueOne = binarySearch(stops, Integer.parseInt(line[0]));
+                    int matrixValueTwo = binarySearch(stops, Integer.parseInt(line[1]));
+                    edge = new DirectedEdge(matrixValueOne, matrixValueTwo, 2);// makes new edge with the related matrix values and sets 2 as the cost
+                    graph.addEdge(edge); // add the new edge to the graph
+                } else {
+                    int cost = (Integer.parseInt(line[3])) / 100; // gets the weight of the edge
+                    int matrixValueOne = binarySearch(stops, Integer.parseInt(line[0]));
+                    int matrixValueTwo = binarySearch(stops, Integer.parseInt(line[1]));
+                    DirectedEdge edge = new DirectedEdge(matrixValueOne, matrixValueTwo, cost); // create new edge
+                    graph.addEdge(edge); // adds the new endge to the graph
+                }
+            }
+            readFile.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("ERROR");
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Method to read in the file stop_times.txt and initialise all data that needs to be used.
+     *
+     * @param file name of the file to read
+     */
+    public static void readStopTimes(String file) {
+        try {
+            if (file == null) {
+                return;
+            }
+            File myFile = new File(file);
+            Scanner readFile = new Scanner(myFile);
+            all = new ArrayList<>();
+            readFile.nextLine(); // skip the first line
+            String[] line = addTimes(readFile);
+            while (readFile.hasNextLine()) {
+                String[] line2 = addTimes(readFile);
+                if (Objects.equals(line[0], line2[0])) {
+                    // get corresponding matrix value for each of bus stop id
+                    int matrixValueOne = binarySearch(stops, Integer.parseInt(line[3]));
+                    int matrixValueTwo = binarySearch(stops, Integer.parseInt(line2[3]));
+                    DirectedEdge edge = new DirectedEdge(matrixValueOne, matrixValueTwo, 1); // create edge with
+                    // the corresponding matrix values and a cost of 1
+                    graph.addEdge(edge); // add edge to the graph
+                }
+                line = line2; // set line one to line two to make sure not to miss any pairs
+            }
+            all.sort((l, l2) -> { // sort the array by trip ID
+                String[] split = l.split(",");
+                String[] split2 = l2.split(",");
+                return split[0].compareTo(split2[0]);
+            });
+
+            readFile.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("ERROR");
+            e.printStackTrace();
+        }
+    }
+//Method to read and split line. Add any valid arrival times to array.
+    private static String[] addTimes(Scanner readFile) {
+        String line = readFile.nextLine(); // read the line
+        String[] lineSplit = line.split(",");
+        String[] time = lineSplit[1].split(":"); // split the time into string array
+        time[0] = time[0].trim(); // gets rid of the whitespace
+        if (Integer.parseInt(time[0]) >= 0 && Integer.parseInt(time[0]) <= 23) {
+            all.add(line); // adds all stop info into the arrayList for use in printing later
+        }
+        return lineSplit;
+    }
+
+    public static int binarySearch(ArrayList<Integer> arr, int x) {
+        int left = 0;
+        int right = arr.size() - 1;
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (arr.get(mid) == x) return mid;
+            if (arr.get(mid) < x) left = mid + 1;
+            else right = mid - 1;
+        }
+        return -1;
     }
 }
 
