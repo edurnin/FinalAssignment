@@ -8,7 +8,7 @@ public class busSystem {
     static ArrayList<Integer> stops;
     static EdgeWeightedDigraph graph;
     static TST<String> tst; // empty ternary search tree
-    static DirectedEdge edge; // edges to be added to graph for Dijkstra
+    static DirectedEdge edge=new DirectedEdge(1,2,3); // edges to be added to graph for Dijkstra
     static ArrayList<String> all; // arrayList of all the information
 
 
@@ -17,6 +17,7 @@ public class busSystem {
         readTransfers("transfers.txt");
         readStopTimes("stop_times.txt");
 
+        searchByArrivalTime();
 
         Scanner scanner = new Scanner(System.in);
         boolean done = false;
@@ -45,6 +46,51 @@ public class busSystem {
             }
         }
 
+    }
+
+    public static void searchArrivalTime(String arrivalTime){
+        for (String allString : all) {
+            String[] splitString = allString.split(",");
+            if (splitString[1].trim().equals(arrivalTime)) {
+                System.out.println(allString);
+            }
+        }
+    }
+
+    public static void searchByArrivalTime(){
+        Scanner scanner = new Scanner(System.in);
+        boolean done = false;
+        while(!done){
+            System.out.println("Enter arrival time in (hour:min:seconds) or enter 'quit' to exit: ");
+            if(scanner.hasNextLine()){
+                String input = scanner.nextLine().trim();
+                if(input.equalsIgnoreCase("quit")){
+                    done = true;
+                }else{
+                    String[] splitInput = input.split(":");
+                    try{
+                        for (String string : splitInput) {
+                            if (Integer.parseInt(string) >= 0) {
+                                Integer.parseInt(string);
+                            }
+                        }
+                        searchArrivalTime(input);
+                    }catch(Exception ignored){
+                        System.out.println("ERROR, Make sure to enter arrival time in (hour:min:seconds).");
+                    }
+                }
+            }else if(scanner.hasNext()){
+                String input = scanner.nextLine();
+                if(input.equalsIgnoreCase("quit")){
+                    done = true;
+                }else{
+                    System.out.println("Enter arrival time in (hour:min:seconds) or enter 'quit' to exit: ");
+                }
+            } else{
+                System.out.println("ERROR, Make sure to enter arrival time in (hour:min:seconds).Try again: ");
+            }
+
+        }
     }
 
     //reads in the stops file and gets required data
