@@ -8,7 +8,7 @@ public class busSystem {
     static ArrayList<Integer> stops;
     static EdgeWeightedDigraph graph;
     static TST<String> tst; // empty ternary search tree
-    static DirectedEdge edge; // edges to be added to graph for Dijkstra
+    static DirectedEdge edge=new DirectedEdge(1,2,3); // edges to be added to graph for Dijkstra
     static ArrayList<String> all; // arrayList of all the information
 
 
@@ -17,34 +17,88 @@ public class busSystem {
         readTransfers("transfers.txt");
         readStopTimes("stop_times.txt");
 
-
-        Scanner scanner = new Scanner(System.in);
         boolean done = false;
-        while(!done) {
-            System.out.println("Enter start Bus Stop ID or \"quit\": ");
-            int start = scanner.nextInt();
-            System.out.println("Enter destination Bus Stop ID or \"quit\": ");
-            int destination = scanner.nextInt();
-            int startValue = binarySearch(stops, start);
-            int destinationValue = binarySearch(stops, destination);
-            if(startValue == -1){
-                System.out.println(start + " does not exist.\n Try again.");
-            }else if(destinationValue == -1){
-                System.out.println(destination + " does not exist.\n Try again.");
-            }else {
-                DijkstraSP dijkstra = new DijkstraSP(graph, startValue);
-                if (dijkstra.hasPathTo(destinationValue)) {
-                    StdOut.printf("%d to %d \n", start, destination);
-                    for (DirectedEdge edge : dijkstra.pathTo(destinationValue)) {
-                        StdOut.printf("%d to %d, cost: (%.2f)\n", stops.get(edge.from()), stops.get(edge.to()), edge.weight());
-                    }
-                    StdOut.println();
+        while (!done) {
+            System.out.println("To search for the shortest path between two Stops using bus Stop IDs, enter '1'.\n");
+            System.out.println("To search for a bus stop by name, enter '2'.\n");
+            System.out.println("To search for a trip by its arrival time, enter '3'.\n");
+            System.out.println("To quit enter \"quit\".");
+            Scanner scanner = new Scanner(System.in);
+            if (scanner.hasNextInt()) {
+                int valueInputted = scanner.nextInt(); // get integer value user inputted
+                if (valueInputted == 1) {
+                    searchStop(); // functionality to search for shortest trip between two valid bus stops
+                } else if (valueInputted == 2) {
+                    searchByName(); // functionality to search for bus stop names given valid prefix
+                } else if (valueInputted == 3) {
+                    searchByArrivalTime(); // functionality to search for trip by its arrival time
+                } else {
+                    // error handling if user inputted invalid integer value
+                    System.out.println("ERROR, enter 1,2 or 3\n");
                 }
-                System.out.println("Shortest Path costs: " + dijkstra.distTo(destinationValue));
-                done = true;
+            } else {
+                // get user input as string
+                String input = scanner.next();
+                // exit the program if they type "exit"
+                if (input.equalsIgnoreCase("quit")) {
+                    done = true;
+                    System.out.println("Thank you.");
+                } else {
+                    // error handling if user inputted invalid string value
+                    System.out.println("Please enter a valid integer value or \"quit\".");
+                }
             }
         }
 
+    }
+
+    public static void searchByName() {}
+
+    public static void searchStop() {}
+
+        public static void searchArrivalTime(String arrivalTime){
+        for (String allString : all) {
+            String[] splitString = allString.split(",");
+            if (splitString[1].trim().equals(arrivalTime)) {
+                System.out.println(allString);
+            }
+        }
+    }
+
+    public static void searchByArrivalTime(){
+        Scanner scanner = new Scanner(System.in);
+        boolean done = false;
+        while(!done){
+            System.out.println("Enter arrival time in (hour:min:seconds) or enter 'quit' to exit: ");
+            if(scanner.hasNextLine()){
+                String input = scanner.nextLine().trim();
+                if(input.equalsIgnoreCase("quit")){
+                    done = true;
+                }else{
+                    String[] splitInput = input.split(":");
+                    try{
+                        for (String string : splitInput) {
+                            if (Integer.parseInt(string) >= 0) {
+                                Integer.parseInt(string);
+                            }
+                        }
+                        searchArrivalTime(input);
+                    }catch(Exception ignored){
+                        System.out.println("ERROR, Make sure to enter arrival time in (hour:min:seconds).");
+                    }
+                }
+            }else if(scanner.hasNext()){
+                String input = scanner.nextLine();
+                if(input.equalsIgnoreCase("quit")){
+                    done = true;
+                }else{
+                    System.out.println("Enter arrival time in (hour:min:seconds) or enter 'quit' to exit: ");
+                }
+            } else{
+                System.out.println("ERROR, Make sure to enter arrival time in (hour:min:seconds).Try again: ");
+            }
+
+        }
     }
 
     //reads in the stops file and gets required data
