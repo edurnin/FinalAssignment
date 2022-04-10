@@ -356,4 +356,29 @@ public class busSystem {
     }
 }
 
+//    Test all code:
+//
+//        Run no.4 (Error)
+//
+//        Run no. 1
+//        1888 and 12182 - path
+//        2 and 9486 - No path
+//        1 - error
+//        Quit 1
+//
+//
+//        Run no.2
+//        NEW WESTMINSTER STN BAY 9
+//        not a stop
+//        KOOTENAY
+//        Quit 2
+//
+//        Run no.3
+//        5:53:29
+//        not a time
+//        5:53:70
+//        Quit 3
+//
+//        Quit entire program.
+
 
