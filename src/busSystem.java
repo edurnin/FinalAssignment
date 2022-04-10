@@ -19,18 +19,18 @@ public class busSystem {
 
         boolean done = false;
         while (!done) {
-            System.out.println("To search for the shortest path between two Stops using bus Stop IDs, enter '1'.\n");
-            System.out.println("To search for a bus stop by name, enter '2'.\n");
-            System.out.println("To search for a trip by its arrival time, enter '3'.\n");
+            System.out.println("To search for the shortest path between two Stops using bus Stop IDs, enter '1'.");
+            System.out.println("To search for a bus stop by name, enter '2'.");
+            System.out.println("To search for a trip by its arrival time, enter '3'.");
             System.out.println("To quit enter \"quit\".");
             Scanner scanner = new Scanner(System.in);
             if (scanner.hasNextInt()) {
-                int valueInputted = scanner.nextInt(); // get integer value user inputted
-                if (valueInputted == 1) {
+                int intput = scanner.nextInt(); // get integer value user inputted
+                if (intput == 1) {
                     searchStop(); // functionality to search for shortest trip between two valid bus stops
-                } else if (valueInputted == 2) {
+                } else if (intput == 2) {
                     searchByName(); // functionality to search for bus stop names given valid prefix
-                } else if (valueInputted == 3) {
+                } else if (intput == 3) {
                     searchByArrivalTime(); // functionality to search for trip by its arrival time
                 } else {
                     // error handling if user inputted invalid integer value
@@ -42,7 +42,7 @@ public class busSystem {
                 // exit the program if they type "exit"
                 if (input.equalsIgnoreCase("quit")) {
                     done = true;
-                    System.out.println("Thank you.");
+                    System.out.println("Goodbye.");
                 } else {
                     // error handling if user inputted invalid string value
                     System.out.println("Please enter a valid integer value or \"quit\".");
@@ -52,9 +52,86 @@ public class busSystem {
 
     }
 
-    public static void searchByName() {}
+    public static void searchByName() {
+        Scanner scanner = new Scanner(System.in);
+        boolean done = false;
+        while (!done) {
+            System.out.println("Enter the stop name to search for (or enter 'quit'to leave): ");
+            String input = scanner.nextLine().trim();
+            if (input.equalsIgnoreCase("quit")) {
+                done = true;
+            } else {
+                StdOut.println("Bus Stops beginning with" + input + ":");
+                int count = 0;
+                for (String string : tst.keysWithPrefix(input.toUpperCase())) {
+                    count++;
+                    StdOut.println(string);
+                }
+                if (count == 0) {
+                    StdOut.println("No Stops with this prefix exist.");
+                }
+                StdOut.println();
+            }
+        }
+    }
 
-    public static void searchStop() {}
+    public static void searchStop() {
+        Scanner scanner = new Scanner(System.in);
+        boolean done = false;
+        while (!done) {
+            System.out.println("Enter starting Bus Stop ID or 'quit' to exit: ");
+            if (scanner.hasNextInt()) {
+                int start = scanner.nextInt();
+                System.out.println("Enter destination Bus Stop ID or 'quit': ");
+                if (scanner.hasNextInt()) {
+                    int destination = scanner.nextInt();
+                    int startValue = binarySearch(stops, start);
+                    int destinationValue = binarySearch(stops, destination);
+                    // if either are -1, bus stop does not exist and tells the user.
+                    if (startValue == -1) {
+                        System.out.println(start + " does not exist.\n Try again.");
+                        if (destinationValue == -1) {
+                            System.out.println(destination + " does not exist.\nTry again.");
+                        }
+                        return;
+                    } else if (destinationValue == -1) {
+                        System.out.println("Bus Stop " + destination + " does not exist.\nPlease Enter new stops.");
+                    } else {
+                        DijkstraSP dijkstraSP = new DijkstraSP(graph, startValue); // create dijkstra to get SP
+                        // beginning at users inputted start destination
+                        // check if there is path between users start and end destinations
+                        if (dijkstraSP.hasPathTo(destinationValue)) {
+                            StdOut.printf("Bus stop: %d to Bus Stop: %d \n", start, destination);
+                            for (DirectedEdge e : dijkstraSP.pathTo(destinationValue)) {
+                                // print out each step of the shortest path and its associated cost
+                                StdOut.printf("Bus Stop: %d to Bus Stop: %d, cost: (%.2f)\n", stops.get(e.from()),
+                                        stops.get(e.to()), e.weight());
+                            }
+                            StdOut.println();
+                        }
+                        // print out total cost of SP
+                        System.out.println("Shortest Path from " +start+ " to " +destination+" is: " + dijkstraSP.distTo(destinationValue));
+                    }
+                } else {
+                    if (scanner.next().equalsIgnoreCase("quit")) {
+                        // exits this part of the program if user entered quit
+                        done = true;
+                    } else {
+                        // error handling for if user enters invalid input
+                        System.out.println("Please enter \"quit\" or a valid Bus Stop ID.");
+                    }
+                }
+            } else {
+                if (scanner.next().equalsIgnoreCase("quit")) {
+                    // exits this part of the program if user entered quit
+                    done = true;
+                } else {
+                    // error handling for if user enters invalid input
+                    System.out.println("Please enter \"quit\" or a valid Bus Stop ID.");
+                }
+            }
+        }
+    }
 
         public static void searchArrivalTime(String arrivalTime){
         for (String allString : all) {
@@ -278,5 +355,30 @@ public class busSystem {
         return -1;
     }
 }
+
+//    Test all code:
+//
+//        Run no.4 (Error)
+//
+//        Run no. 1
+//        1888 and 12182 - path
+//        2 and 9486 - No path
+//        1 - error
+//        Quit 1
+//
+//
+//        Run no.2
+//        NEW WESTMINSTER STN BAY 9
+//        not a stop
+//        KOOTENAY
+//        Quit 2
+//
+//        Run no.3
+//        5:53:29
+//        not a time
+//        5:53:70
+//        Quit 3
+//
+//        Quit entire program.
 
 
