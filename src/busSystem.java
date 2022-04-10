@@ -16,6 +16,35 @@ public class busSystem {
         readStops("stops.txt");
         readTransfers("transfers.txt");
         readStopTimes("stop_times.txt");
+
+
+        Scanner scanner = new Scanner(System.in);
+        boolean done = false;
+        while(!done) {
+            System.out.println("Enter start Bus Stop ID or \"quit\": ");
+            int start = scanner.nextInt();
+            System.out.println("Enter destination Bus Stop ID or \"quit\": ");
+            int destination = scanner.nextInt();
+            int startValue = binarySearch(stops, start);
+            int destinationValue = binarySearch(stops, destination);
+            if(startValue == -1){
+                System.out.println(start + " does not exist.\n Try again.");
+            }else if(destinationValue == -1){
+                System.out.println(destination + " does not exist.\n Try again.");
+            }else {
+                DijkstraSP dijkstra = new DijkstraSP(graph, startValue);
+                if (dijkstra.hasPathTo(destinationValue)) {
+                    StdOut.printf("%d to %d \n", start, destination);
+                    for (DirectedEdge edge : dijkstra.pathTo(destinationValue)) {
+                        StdOut.printf("%d to %d, cost: (%.2f)\n", stops.get(edge.from()), stops.get(edge.to()), edge.weight());
+                    }
+                    StdOut.println();
+                }
+                System.out.println("Shortest Path costs: " + dijkstra.distTo(destinationValue));
+                done = true;
+            }
+        }
+
     }
 
     //reads in the stops file and gets required data
